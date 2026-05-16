@@ -16,8 +16,16 @@ Programming Languages
 
 The project will be implemented in Python.
 
-In peer review, I can evaluate projects implemented in any possiblr language.
+In peer review, I can evaluate projects implemented in any possible programming language.
 
 Project Language
 
 The project documentation will be written in English. Comments and docstrings in the code may also be written in English, while variable and function names will follow common English programming conventions.
+
+Sources
+
+* Optical Character Recognition (Wikipedia)￼
+* Convolutional Neural Networks (Wikipedia)￼
+* TensorFlow Documentation￼
+* PyTorch Documentation￼
+* OpenCV Documentation￼
