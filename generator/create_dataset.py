@@ -10,10 +10,12 @@ FONT_DIR = BASE_DIR / "data" / "fonts"
 OUTPUT_DIR = BASE_DIR / "data" / "generated"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# Image and dataset settings used for synthetic digit generation.
 IMAGE_SIZE = 28
 FONT_SIZE = 22
 SAMPLES_PER_DIGIT = 2500
 
+# Collect every available font file so each sample can be rendered with small style variations.
 font_paths = list(FONT_DIR.glob("*.ttf")) + list(FONT_DIR.glob("*.ttc"))
 
 if not font_paths:
@@ -21,11 +23,13 @@ if not font_paths:
 
 
 def apply_rotation(image):
+    # Small rotations make the synthetic digits closer to real handwritten or scanned input.
     angle = random.uniform(-8, 8)
     return image.rotate(angle, fillcolor=255)
 
 
 def apply_noise(image):
+    # Add pixel-level noise to simulate imperfect scan quality and image compression artifacts.
     array = np.array(image).astype(np.float32)
     noise = np.random.normal(0, 12, array.shape)
     array += noise
@@ -34,11 +38,13 @@ def apply_noise(image):
 
 
 def apply_blur(image):
+    # Slight blur helps the model handle soft or out-of-focus receipt text.
     radius = random.uniform(0, 1.2)
     return image.filter(ImageFilter.GaussianBlur(radius))
 
 
 def generate_digit_image(digit):
+    # Draw one digit on a clean canvas, then apply the augmentations above.
     image = Image.new("L", (IMAGE_SIZE, IMAGE_SIZE), color=255)
     draw = ImageDraw.Draw(image)
     font_path = random.choice(font_paths)
@@ -56,10 +62,12 @@ def create_dataset():
     X = []
     y = []
 
+    # Generate the same number of samples for each digit class.
     for digit in range(10):
         print(f"Generating digit {digit}...")
         for _ in range(SAMPLES_PER_DIGIT):
             image = generate_digit_image(digit)
+            # Normalize to [0, 1] and flatten into a vector for later model training.
             array = np.array(image) / 255.0
             vector = array.flatten()
             X.append(vector)
@@ -76,6 +84,7 @@ if __name__ == "__main__":
     print("X shape:", X.shape)
     print("y shape:", y.shape)
 
+    # Split the generated samples into training and validation sets.
     X_train, X_val, y_train, y_val = train_test_split(
         X,
         y,
