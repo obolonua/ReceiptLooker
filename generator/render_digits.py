@@ -2,7 +2,8 @@ import random
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw, ImageFont
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 # -----------------------------
 # Paths
@@ -56,8 +57,54 @@ def generate_digit_image(digit):
         fill=0
     )
 
+    # Apply augmentations
+
+    image = apply_rotation(image)
+
+    image = apply_blur(image)
+
+    image = apply_noise(image)
+    
     return image
 
+# Rotate the image
+
+def apply_rotation(image):
+
+    angle = random.uniform(-8, 8)
+
+    return image.rotate(
+        angle,
+        fillcolor=255
+    )
+
+# Add some noise to image
+def apply_noise(image):
+
+    array = np.array(image).astype(np.float32)
+
+    noise = np.random.normal(
+        loc=0,
+        scale=5,
+        size=array.shape
+    )
+
+    array += noise
+
+    array = np.clip(array, 0, 255)
+
+    return Image.fromarray(array.astype(np.uint8))
+
+# Make the image blurry
+def apply_blur(image):
+
+    radius = random.uniform(0, 1.2)
+
+    return image.filter(
+
+        ImageFilter.GaussianBlur(radius=radius)
+
+    )
 
 # -----------------------------
 # Visualization
