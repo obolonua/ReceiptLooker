@@ -1,19 +1,78 @@
 import numpy as np
 
-
-# Categorical cross-entropy measures how well predicted class probabilities match the true labels.
 class CategoricalCrossEntropy:
+    """
+    Categorical cross-entropy loss for multi-class classification.
 
-    # Clip predictions for numerical stability, then compute the average negative log likelihood.
+    This loss measures how well predicted class probabilities match the true
+    labels. Lower values indicate that the model assigns more probability to
+    the correct class.
+    """
+
     def forward(self, y_pred, y_true):
+        """
+        Compute the average categorical cross-entropy loss.
+
+        Parameters:
+            y_pred: Predicted class probabilities with shape
+                (batch_size, num_classes).
+            y_true: True labels as class indices or one-hot encoded vectors.
+
+        Returns:
+            The mean negative log likelihood over the batch.
+        """
         samples = len(y_pred)
-        y_pred_clipped = np.clip(y_pred, 1e-7, 1 - 1e-7)
-        correct_confidences = y_pred_clipped[
+
+        y_pred_clipped = np.clip(
+            y_pred,
+            1e-7,
+            1 - 1e-7
+        )
+
+        if len(y_true.shape) == 1:
+            correct_confidences = y_pred_clipped[
+                range(samples),
+                y_true
+            ]
+        else:
+            correct_confidences = np.sum(
+                y_pred_clipped * y_true,
+                axis=1
+            )
+
+        negative_log_likelihoods = -np.log(
+            correct_confidences
+        )
+
+        return np.mean(
+            negative_log_likelihoods
+        )
+
+
+class SoftmaxCrossEntropy:
+    """
+    Backward pass helper for softmax + cross-entropy.
+
+    This computes the gradient of the combined softmax activation and
+    categorical cross-entropy loss with respect to the softmax outputs.
+    """
+
+    def backward(self, y_pred, y_true):
+        """
+        Compute gradients for the softmax-cross-entropy combination.
+
+        Parameters:
+            y_pred: Softmax probabilities with shape (batch_size, num_classes).
+            y_true: True labels as class indices.
+        """
+        samples = len(y_pred)
+        self.dinputs = y_pred.copy()
+        self.dinputs[
             range(samples),
             y_true
-        ]
-        negative_log_likelihoods = -np.log(correct_confidences)
-        return np.mean(negative_log_likelihoods)
+        ] -= 1
+
+        self.dinputs /= samples
 
 
 if __name__ == "__main__":
@@ -90,80 +149,57 @@ Step 3: Compute average loss
     (0.163 + 0.357 + 0.186) / 3
 
     ≈ 0.235
+"""
 
-Final loss:
 
-    0.235
+"""
+Softmax + Cross-Entropy
+=======================
 
-Why use logarithms?
--------------------
+Purpose
+-------
+Used during backpropagation to efficiently compute the gradient of the
+combined softmax activation and categorical cross-entropy loss.
 
-Good prediction:
+Why combine them:
+    - Softmax converts raw scores into probabilities
+    - Cross-entropy measures how far those probabilities are from the truth
+    - The combined gradient is simpler and more numerically stable than
+      handling the two operations separately
 
-    probability = 0.99
+What the backward pass does:
+    - Copies the predicted probabilities
+    - Subtracts 1 from the probability assigned to the correct class
+    - Divides by the number of samples to get the batch average gradient
 
-    loss = -log(0.99)
+Example
+-------
 
-    ≈ 0.01
+Predicted probabilities:
 
-Almost no penalty.
+    [
+        [0.05, 0.10, 0.85],
+        [0.70, 0.20, 0.10],
+        [0.02, 0.15, 0.83]
+    ]
 
-Bad prediction:
+True labels:
 
-    probability = 0.10
+    [2, 0, 2]
 
-    loss = -log(0.10)
+Gradient before averaging:
 
-    ≈ 2.30
+    [
+        [0.05, 0.10, -0.15],
+        [-0.30, 0.20, 0.10],
+        [0.02, 0.15, -0.17]
+    ]
 
-Large penalty.
+After dividing by 3 samples:
 
-Terrible prediction:
-
-    probability = 0.001
-
-    loss = -log(0.001)
-
-    ≈ 6.91
-
-Huge penalty.
-
-Numerical Stability
--------------------
-
-The probabilities are clipped before applying the logarithm:
-
-    np.clip(y_pred, 1e-7, 1 - 1e-7)
-
-This prevents:
-
-    log(0)
-
-which would produce:
-
-    -inf
-
-and break training.
-
-Role in Neural Networks
------------------------
-
-Typical classification pipeline:
-
-    Input
-      ↓
-    MLP
-      ↓
-    Softmax
-      ↓
-    Class Probabilities
-      ↓
-    Cross-Entropy Loss
-      ↓
-    Backpropagation
-      ↓
-    Weight Updates
-
-The loss tells the network how wrong its predictions are.
-Backpropagation then uses this information to adjust the weights and improve future predictions.
+    [
+        [0.0167, 0.0333, -0.0500],
+        [-0.1000, 0.0667, 0.0333],
+        [0.0067, 0.0500, -0.0567]
+    ]
 """
