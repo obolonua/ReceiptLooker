@@ -7,7 +7,7 @@ This is an assignment for the Algorithms and Artificial Intelligence course in t
 ### Requirements
 
 - Python 3.11
-- Font files in `data/fonts/` (`.ttf` or `.ttc`)
+- Font files in `data/fonts/` with `.ttf` or `.ttc` extensions
 
 ### Install dependencies
 
@@ -17,9 +17,9 @@ This project uses Poetry.
 poetry install
 ```
 
-### Preview generated digits
+### Preview synthetic digits
 
-Run the digit preview script to see sample synthetic images:
+Generate and display a sample grid of synthetic digit images:
 
 ```bash
 poetry run python generator/render_digits.py
@@ -27,7 +27,7 @@ poetry run python generator/render_digits.py
 
 ### Generate the dataset
 
-Run the dataset generator to create the `.npy` files in `data/generated/`:
+Run the dataset generator to create the NumPy arrays in `data/generated/`:
 
 ```bash
 poetry run python generator/create_dataset.py
@@ -42,8 +42,25 @@ The script writes:
 
 ### Run tests
 
+Run the unit test suite with Python's built-in test runner:
+
 ```bash
 poetry run python -m unittest discover -s tests
 ```
+
+### Test model accuracy
+
+After training and saving the model weights, you can estimate accuracy on fresh synthetic digits with:
+
+```bash
+poetry run python -m tests.predict_digit
+```
+
+The script expects the trained weights at `models/digit_mlp_weights.npz`, which is created by `poetry run python train.py`.
+
+## Project Notes
+
+- The generators expect at least one font file in `data/fonts/`.
+- The dataset generator creates 28x28 grayscale digit images and splits them into training and validation sets.
 
 ## Dokumentaatio
