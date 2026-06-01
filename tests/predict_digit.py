@@ -9,7 +9,7 @@ from mlp.layers import Layer
 
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_FILE = BASE_DIR / "models" / "digit_mlp_weights.npz"
+MODEL_FILE = BASE_DIR.parent / "models" / "digit_mlp_weights.npz"
 
 
 def load_model():
