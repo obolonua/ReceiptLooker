@@ -6,3 +6,5 @@ __pycache__/
 .DS_Store
 generated/
 models/
+segmented_lines/
+receipt/
