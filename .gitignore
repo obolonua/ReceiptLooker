@@ -8,3 +8,5 @@ generated/
 models/
 segmented_lines/
 receipt/
+.vscode/
+codes/
