@@ -17,12 +17,12 @@ This project uses Poetry.
 poetry install
 ```
 
-### Preview synthetic digits
+### Preview synthetic characters
 
-Generate and display a sample grid of synthetic digit images:
+Generate and display a sample grid of synthetic character images:
 
 ```bash
-poetry run python generator/render_digits.py
+poetry run python -m generator.render_digits
 ```
 
 ### Generate the dataset
@@ -30,7 +30,7 @@ poetry run python generator/render_digits.py
 Run the dataset generator to create the NumPy arrays in `data/generated/`:
 
 ```bash
-poetry run python generator/create_dataset.py
+poetry run python -m generator.create_dataset
 ```
 
 The script writes:
@@ -56,21 +56,21 @@ After training and saving the model weights, you can estimate accuracy on fresh 
 poetry run python -m tests.predict_digit
 ```
 
-The script expects the trained weights at `models/digit_mlp_weights.npz`, which is created by `poetry run python train.py`.
+The script expects the trained weights at `models/digit_mlp_weights.npz`, which is created by `poetry run python -m train`.
 
 ### Run the Flask UI
 
 After training the model, start the web app with:
 
 ```bash
-poetry run python app.py
+poetry run python -m app
 ```
 
-Open `http://127.0.0.1:5000/` in your browser and click **Generate number** to create a new digit, see the generated image, and inspect the model prediction.
+Open `http://127.0.0.1:5000/` in your browser and click **Generate character** to create a new sample, see the generated image, and inspect the model prediction.
 
 ## Project Notes
 
 - The generators expect at least one font file in `data/fonts/`.
-- The dataset generator creates 28x28 grayscale digit images and splits them into training and validation sets.
+- The dataset generator creates 28x28 grayscale character images and splits them into training and validation sets.
 
 ## Dokumentaatio
